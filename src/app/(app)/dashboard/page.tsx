@@ -1,114 +1,81 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
 import {
   Users,
   GraduationCap,
-  BookOpenCheck,
-  TrendingUp,
+  School,
+  ClipboardList,
   ArrowRight,
-  CalendarRange,
-  FileText,
-  ClipboardCheck,
-  Megaphone,
+  BookOpenCheck,
+  CalendarCheck,
+  Wallet,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
-import { ButtonLink } from "@/components/ui/button";
-import { AreaChart } from "@/components/charts/area-chart";
-import { DonutChart } from "@/components/charts/donut-chart";
-import {
-  enrollmentTrend,
-  programDistribution,
-  students,
-  announcements,
-  documentRequests,
-} from "@/lib/data";
-
-export const metadata: Metadata = { title: "Dashboard" };
+import { LoadingState, ErrorState, EmptyState } from "@/components/ui/states";
+import { useQuery } from "@/hooks/use-query";
+import { useAuth } from "@/lib/auth";
+import { dashboardApi, enrollmentApi, usersApi } from "@/lib/api/endpoints";
+import type { Enrollment, User } from "@/lib/api/types";
 
 const quickActions = [
-  { label: "New Enrollment", href: "/enrollment", icon: GraduationCap, tone: "bg-brand-50 text-brand-600" },
-  { label: "Encode Grades", href: "/grading", icon: BookOpenCheck, tone: "bg-accent-500/10 text-accent-600" },
-  { label: "Advise Student", href: "/advising", icon: ClipboardCheck, tone: "bg-info-50 text-info-600" },
-  { label: "Faculty Load", href: "/faculty-loading", icon: CalendarRange, tone: "bg-success-50 text-success-600" },
+  { label: "Enrollment", href: "/enrollment", icon: GraduationCap, tone: "bg-brand-50 text-brand-600" },
+  { label: "Classes & Grading", href: "/classes", icon: BookOpenCheck, tone: "bg-accent-500/10 text-accent-600" },
+  { label: "Attendance", href: "/attendance", icon: CalendarCheck, tone: "bg-info-50 text-info-600" },
+  { label: "Fees & Payments", href: "/finance", icon: Wallet, tone: "bg-success-50 text-success-600" },
 ];
 
+function num(v: unknown, fallback = "—") {
+  return typeof v === "number" ? v.toLocaleString() : fallback;
+}
+
 export default function DashboardPage() {
-  const trend = enrollmentTrend.map((d) => ({
-    label: d.term.replace(" 20", " '"),
-    value: d.students,
-  }));
+  const { user } = useAuth();
+
+  const summary = useQuery(() => dashboardApi.summary(), []);
+  const pending = useQuery(() => enrollmentApi.list({ status: "pending", per_page: 6 }), []);
+  const recentUsers = useQuery(() => usersApi.list({ per_page: 6 }), []);
+
+  const s = (summary.data ?? {}) as Record<string, unknown>;
+  const pendingRows: Enrollment[] = (pending.data?.data ?? []) as Enrollment[];
+  const userRows: User[] = (recentUsers.data?.data ?? []) as User[];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Good morning, Dr. Marquez 👋"
-        description="Here's what's happening across the institution this term."
+        title={`Welcome back, ${user?.first_name ?? user?.name ?? "Admin"} 👋`}
+        description="A live snapshot of enrollment, academics, and activity across the institution."
       >
-        <ButtonLink href="/analytics" variant="outline" size="md">
-          <TrendingUp className="h-4 w-4" />
-          View reports
-        </ButtonLink>
-        <ButtonLink href="/enrollment" size="md">
-          New enrollment
+        <Link
+          href="/enrollment"
+          className="inline-flex h-10 items-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
+        >
+          Manage enrollment
           <ArrowRight className="h-4 w-4" />
-        </ButtonLink>
+        </Link>
       </PageHeader>
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Enrolled" value="4,312" icon={Users} trend={5.7} trendLabel="vs. last term" tone="brand" />
-        <StatCard label="New Applicants" value="318" icon={GraduationCap} trend={12.4} trendLabel="this enrollment period" tone="accent" />
-        <StatCard label="Avg. GWA" value="1.78" icon={BookOpenCheck} trend={2.1} trendLabel="institution-wide" tone="success" />
-        <StatCard label="Faculty Load" value="92%" icon={CalendarRange} trend={-1.3} trendLabel="capacity utilized" tone="info" />
-      </div>
-
-      {/* Charts row */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div>
-              <CardTitle>Enrollment Trend</CardTitle>
-              <CardDescription>Total enrolled students per term</CardDescription>
-            </div>
-            <Badge tone="success" dot>
-              +38% over 3 years
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <AreaChart data={trend} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle>Program Mix</CardTitle>
-              <CardDescription>Distribution by program</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center gap-5">
-              <DonutChart
-                data={programDistribution.map((p) => ({ label: p.program, value: p.students, color: p.color }))}
-                centerValue="4,312"
-                centerLabel="students"
-              />
-              <div className="grid w-full grid-cols-2 gap-x-4 gap-y-2">
-                {programDistribution.slice(0, 6).map((p) => (
-                  <div key={p.program} className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: p.color }} />
-                    <span className="truncate text-xs text-ink-600">{p.program}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* KPIs */}
+      {summary.loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="h-32 animate-pulse" />
+          ))}
+        </div>
+      ) : summary.error ? (
+        <ErrorState error={summary.error} onRetry={summary.refetch} />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Total Students" value={num(s.total_students)} icon={Users} tone="brand" />
+          <StatCard label="Total Teachers" value={num(s.total_teachers)} icon={GraduationCap} tone="accent" />
+          <StatCard label="Sections" value={num(s.total_sections)} icon={School} tone="success" />
+          <StatCard label="Pending Enrollments" value={num(s.pending_enrollments ?? pendingRows.length)} icon={ClipboardList} tone="warning" />
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -127,121 +94,85 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Bottom row */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent students */}
+        {/* Pending enrollments */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <div>
-              <CardTitle>Recent Enrollees</CardTitle>
-              <CardDescription>Latest student registrations this period</CardDescription>
+              <CardTitle>Pending Enrollments</CardTitle>
+              <CardDescription>Applications awaiting review</CardDescription>
             </div>
             <Link href="/enrollment" className="text-sm font-medium text-brand-600 hover:text-brand-700">
               View all
             </Link>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-y border-ink-100 text-left text-xs uppercase tracking-wider text-ink-400">
-                    <th className="px-5 py-2.5 font-medium">Student</th>
-                    <th className="px-5 py-2.5 font-medium">Program</th>
-                    <th className="px-5 py-2.5 font-medium">Type</th>
-                    <th className="px-5 py-2.5 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-ink-100">
-                  {students.slice(0, 6).map((s) => (
-                    <tr key={s.id} className="hover:bg-ink-50/60">
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-3">
-                          <Avatar name={s.name} color={s.avatarColor} size="sm" />
-                          <div>
-                            <p className="font-medium text-ink-900">{s.name}</p>
-                            <p className="text-xs text-ink-400">{s.id}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3 text-ink-600">{s.program}</td>
-                      <td className="px-5 py-3">
-                        <Badge tone={s.type === "Regular" ? "brand" : "warning"}>{s.type}</Badge>
-                      </td>
-                      <td className="px-5 py-3">
-                        <Badge
-                          tone={
-                            s.status === "Enrolled"
-                              ? "success"
-                              : s.status === "Irregular"
-                                ? "warning"
-                                : s.status === "Pending"
-                                  ? "info"
-                                  : "neutral"
-                          }
-                          dot
-                        >
-                          {s.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <CardContent>
+            {pending.loading ? (
+              <LoadingState rows={4} />
+            ) : pending.error ? (
+              <ErrorState error={pending.error} onRetry={pending.refetch} />
+            ) : pendingRows.length === 0 ? (
+              <EmptyState title="No pending enrollments" description="New applications will appear here." />
+            ) : (
+              <div className="space-y-2">
+                {pendingRows.map((e) => {
+                  const name =
+                    e.student?.name ??
+                    `${e.student?.first_name ?? ""} ${e.student?.last_name ?? ""}`.trim() ??
+                    `Student #${e.student_id}`;
+                  return (
+                    <div key={e.id} className="flex items-center gap-3 rounded-xl border border-ink-100 p-3">
+                      <Avatar name={name || "Student"} size="sm" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-ink-900">{name || `Student #${e.student_id}`}</p>
+                        <p className="truncate text-xs text-ink-400">
+                          {e.grade_level?.name ?? `Grade level #${e.grade_level_id}`}
+                          {e.section?.name ? ` · ${e.section.name}` : ""}
+                        </p>
+                      </div>
+                      <Badge tone="warning" dot>{e.status}</Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Announcements + pending docs */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Megaphone className="h-4 w-4 text-brand-600" />
-                Announcements
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {announcements.map((a) => (
-                <div key={a.title} className="rounded-xl border border-ink-100 p-3">
-                  <div className="flex items-center justify-between">
-                    <Badge tone="brand">{a.tag}</Badge>
-                    <span className="text-xs text-ink-400">{a.date}</span>
-                  </div>
-                  <p className="mt-2 text-sm font-semibold text-ink-900">{a.title}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-ink-500">{a.body}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-accent-600" />
-                Pending Documents
-              </CardTitle>
-              <Link href="/registrar" className="text-sm font-medium text-brand-600 hover:text-brand-700">
-                All
-              </Link>
-            </CardHeader>
-            <CardContent className="space-y-2.5">
-              {documentRequests
-                .filter((d) => d.status !== "Released")
-                .slice(0, 4)
-                .map((d) => (
-                  <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl bg-ink-50 px-3 py-2.5">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-ink-800">{d.type}</p>
-                      <p className="truncate text-xs text-ink-400">{d.student}</p>
+        {/* Recent users */}
+        <Card>
+          <CardHeader>
+            <div>
+              <CardTitle>Recent Accounts</CardTitle>
+              <CardDescription>Newly added users</CardDescription>
+            </div>
+            <Link href="/users" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+              All
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {recentUsers.loading ? (
+              <LoadingState rows={4} />
+            ) : recentUsers.error ? (
+              <ErrorState error={recentUsers.error} onRetry={recentUsers.refetch} />
+            ) : userRows.length === 0 ? (
+              <EmptyState title="No users yet" />
+            ) : (
+              <div className="space-y-2.5">
+                {userRows.map((u) => (
+                  <div key={u.id} className="flex items-center gap-3">
+                    <Avatar name={u.name} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-ink-900">{u.name}</p>
+                      <p className="truncate text-xs text-ink-400">{u.email}</p>
                     </div>
-                    <Badge tone={d.status === "Processing" ? "info" : d.status === "On Hold" ? "danger" : "warning"}>
-                      {d.status}
-                    </Badge>
+                    <Badge tone="neutral">{u.role}</Badge>
                   </div>
                 ))}
-            </CardContent>
-          </Card>
-        </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

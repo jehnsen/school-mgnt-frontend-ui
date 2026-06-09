@@ -2,8 +2,10 @@
 
 import { Bell, Menu, Search, ChevronDown } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { useAuth } from "@/lib/auth";
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
+  const { user } = useAuth();
   return (
     <header className="no-print sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-200/70 bg-white/80 px-4 backdrop-blur-md sm:px-6">
       <button
@@ -39,7 +41,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         </button>
 
         <button className="flex items-center gap-2 rounded-xl py-1.5 pl-1.5 pr-2 hover:bg-ink-100">
-          <Avatar name="Elena Marquez" color="#6366f1" size="sm" />
+          <Avatar name={user?.name ?? "User"} color="#6366f1" size="sm" />
           <ChevronDown className="hidden h-4 w-4 text-ink-400 sm:block" />
         </button>
       </div>

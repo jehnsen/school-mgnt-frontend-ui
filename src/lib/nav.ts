@@ -1,21 +1,33 @@
 import {
   LayoutDashboard,
   GraduationCap,
-  ClipboardCheck,
   BookOpenCheck,
-  CalendarRange,
-  FileText,
+  CalendarCheck,
+  Users,
+  SlidersHorizontal,
   Files,
-  BarChart3,
   UserCircle,
+  Wallet,
+  Award,
+  ReceiptText,
+  MessageSquare,
+  Megaphone,
+  HeartPulse,
+  ShieldAlert,
+  LifeBuoy,
+  Sparkles,
+  CalendarRange,
   type LucideIcon,
 } from "lucide-react";
+import type { Role } from "@/lib/api/types";
 
 export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
   badge?: string;
+  /** Roles allowed to see this item. Omit = visible to all authenticated users. */
+  roles?: Role[];
 }
 
 export interface NavSection {
@@ -23,29 +35,67 @@ export interface NavSection {
   items: NavItem[];
 }
 
+const ADMIN: Role[] = ["superadmin", "admin", "principal", "registrar"];
+
 export const navSections: NavSection[] = [
   {
     title: "Overview",
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { label: "My Portal", href: "/portal", icon: UserCircle },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: [...ADMIN, "cashier", "guidance"] },
+      { label: "My Portal", href: "/portal", icon: UserCircle, roles: ["student"] },
+      { label: "Parent Portal", href: "/parent", icon: Users, roles: ["parent"] },
     ],
   },
   {
     title: "Academics",
     items: [
-      { label: "Enrollment", href: "/enrollment", icon: GraduationCap, badge: "Open" },
-      { label: "Advising", href: "/advising", icon: ClipboardCheck },
-      { label: "Grading", href: "/grading", icon: BookOpenCheck },
-      { label: "Faculty Loading", href: "/faculty-loading", icon: CalendarRange },
+      { label: "Enrollment", href: "/enrollment", icon: GraduationCap, roles: [...ADMIN], badge: "Open" },
+      { label: "Classes & Grading", href: "/classes", icon: BookOpenCheck, roles: ["teacher", ...ADMIN] },
+      { label: "Attendance", href: "/attendance", icon: CalendarCheck, roles: ["teacher", ...ADMIN] },
+      { label: "Academic Setup", href: "/academic-setup", icon: SlidersHorizontal, roles: ["superadmin", "admin", "principal"] },
+    ],
+  },
+  {
+    title: "Finance",
+    items: [
+      { label: "Fees & Payments", href: "/finance", icon: Wallet, roles: ["cashier", "admin", "superadmin"] },
+      { label: "Scholarships", href: "/scholarships", icon: Award, roles: ["cashier", "admin", "superadmin"] },
+      { label: "Invoices", href: "/invoices", icon: ReceiptText, roles: ["cashier", "admin", "superadmin"] },
+    ],
+  },
+  {
+    title: "Student Services",
+    items: [
+      { label: "Discipline", href: "/discipline", icon: ShieldAlert, roles: ["guidance", "teacher", ...ADMIN] },
+      { label: "Guidance", href: "/guidance", icon: LifeBuoy, roles: ["guidance", ...ADMIN] },
+      { label: "Health Records", href: "/health", icon: HeartPulse, roles: ["guidance", "admin", "superadmin"] },
+      { label: "Learning Recovery", href: "/learning-recovery", icon: Sparkles, roles: ["teacher", "guidance", ...ADMIN] },
+      { label: "IEP / SPED", href: "/iep", icon: LifeBuoy, roles: ["guidance", "admin", "superadmin"] },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      { label: "Messages", href: "/messages", icon: MessageSquare },
+      { label: "Announcements", href: "/announcements", icon: Megaphone, roles: ["teacher", ...ADMIN] },
     ],
   },
   {
     title: "Records & Insights",
     items: [
-      { label: "Registrar", href: "/registrar", icon: FileText },
-      { label: "Reports & Forms", href: "/reports", icon: Files },
-      { label: "Data Analysis", href: "/analytics", icon: BarChart3 },
+      { label: "Users", href: "/users", icon: Users, roles: ["superadmin", "admin"] },
+      { label: "Reports & Forms", href: "/reports", icon: Files, roles: [...ADMIN] },
+      { label: "Academic Calendar", href: "/calendar", icon: CalendarRange },
     ],
   },
 ];
+
+/** Filter the nav for a given role, dropping empty sections. */
+export function navForRole(role: Role | undefined): NavSection[] {
+  return navSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((i) => !i.roles || (role && i.roles.includes(role))),
+    }))
+    .filter((section) => section.items.length > 0);
+}

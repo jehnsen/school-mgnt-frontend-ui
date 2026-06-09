@@ -1,12 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Sparkles, X } from "lucide-react";
-import { navSections } from "@/lib/nav";
+import { navForRole } from "@/lib/nav";
+import { useAuth } from "@/lib/auth";
 import { Wordmark } from "@/components/brand";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+
+const ROLE_LABELS: Record<string, string> = {
+  superadmin: "Super Admin",
+  admin: "Administrator",
+  principal: "Principal",
+  registrar: "Registrar",
+  teacher: "Teacher",
+  student: "Student",
+  parent: "Parent / Guardian",
+  cashier: "Cashier",
+  guidance: "Guidance",
+};
 
 export function Sidebar({
   mobileOpen,
@@ -16,6 +29,15 @@ export function Sidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+  const sections = navForRole(user?.role);
+  const roleLabel = user ? ROLE_LABELS[user.role] ?? user.role : "";
+
+  async function handleLogout() {
+    await logout();
+    router.replace("/login");
+  }
 
   return (
     <>
@@ -46,7 +68,7 @@ export function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-          {navSections.map((section) => (
+          {sections.map((section) => (
             <div key={section.title}>
               <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-400">
                 {section.title}
@@ -119,20 +141,20 @@ export function Sidebar({
         {/* User */}
         <div className="border-t border-ink-200/70 p-3">
           <div className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-ink-100">
-            <Avatar name="Elena Marquez" color="#6366f1" size="sm" />
+            <Avatar name={user?.name ?? "User"} color="#6366f1" size="sm" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-ink-900">
-                Dr. Elena Marquez
+                {user?.name ?? "—"}
               </p>
-              <p className="truncate text-xs text-ink-400">Faculty · Registrar</p>
+              <p className="truncate text-xs text-ink-400">{roleLabel}</p>
             </div>
-            <Link
-              href="/"
+            <button
+              onClick={handleLogout}
               className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-200 hover:text-ink-700"
               aria-label="Sign out"
             >
               <LogOut className="h-4 w-4" />
-            </Link>
+            </button>
           </div>
         </div>
       </aside>

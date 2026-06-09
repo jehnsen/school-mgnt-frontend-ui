@@ -4,29 +4,50 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  GraduationCap,
-  Users,
-  ShieldCheck,
   ArrowRight,
   Mail,
   Lock,
   Eye,
   EyeOff,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { Wordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-const roles = [
-  { id: "student", label: "Student", icon: GraduationCap },
-  { id: "faculty", label: "Faculty", icon: Users },
-  { id: "admin", label: "Registrar", icon: ShieldCheck },
-] as const;
+import { useAuth } from "@/lib/auth";
+import { ApiError } from "@/lib/api/client";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [role, setRole] = useState<(typeof roles)[number]["id"]>("faculty");
+  const { login } = useAuth();
   const [showPw, setShowPw] = useState(false);
+  const [email, setEmail] = useState("superadmin@school.com");
+  const [password, setPassword] = useState("password");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await login(email, password);
+      router.push("/dashboard");
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 0) {
+          setError("Cannot reach the API. Make sure the backend is running.");
+        } else if (err.status === 401 || err.status === 422) {
+          setError("Invalid email or password.");
+        } else {
+          setError(err.message);
+        }
+      } else {
+        setError("An unexpected error occurred.");
+      }
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -46,14 +67,14 @@ export default function LoginPage() {
               </span>
             </h1>
             <p className="mt-5 max-w-md text-ink-300">
-              Enrollment, advising, grading, faculty loading, records and analytics —
-              all in one premium, unified platform.
+              Enrollment, grading, attendance, finance, and DepEd reporting —
+              for the whole K-12 institution in one platform.
             </p>
             <div className="mt-10 grid grid-cols-3 gap-4">
               {[
-                { v: "4,312", l: "Students" },
-                { v: "286", l: "Faculty" },
-                { v: "98.6%", l: "Pass rate" },
+                { v: "K-12", l: "Grade levels" },
+                { v: "DepEd", l: "Compliant forms" },
+                { v: "5", l: "User roles" },
               ].map((s) => (
                 <div key={s.l} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
                   <p className="font-display text-2xl font-bold text-white">{s.v}</p>
@@ -78,41 +99,18 @@ export default function LoginPage() {
               Sign in to your account
             </h2>
             <p className="mt-1.5 text-sm text-ink-500">
-              Select your role and enter your credentials to continue.
+              Enter your credentials to access the school management system.
             </p>
           </div>
 
-          {/* Role selector */}
-          <div className="mt-6 grid grid-cols-3 gap-2">
-            {roles.map((r) => {
-              const active = role === r.id;
-              return (
-                <button
-                  key={r.id}
-                  type="button"
-                  onClick={() => setRole(r.id)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 rounded-xl border px-3 py-4 text-sm font-medium transition-all",
-                    active
-                      ? "border-brand-400 bg-brand-50 text-brand-700 ring-1 ring-brand-200"
-                      : "border-ink-200 text-ink-500 hover:border-ink-300 hover:bg-ink-50",
-                  )}
-                >
-                  <r.icon className="h-5 w-5" />
-                  {r.label}
-                </button>
-              );
-            })}
-          </div>
+          {error && (
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-danger-500/30 bg-danger-50 px-4 py-3 text-sm text-danger-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-          {/* Form */}
-          <form
-            className="mt-6 space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              router.push("/dashboard");
-            }}
-          >
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-ink-700">
                 Email address
@@ -122,18 +120,17 @@ export default function LoginPage() {
                 <input
                   type="email"
                   required
-                  defaultValue="e.marquez@akademya.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="h-11 w-full rounded-xl border border-ink-200 bg-white pl-10 pr-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                  placeholder="you@akademya.edu"
+                  placeholder="you@school.com"
                 />
               </div>
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="block text-sm font-medium text-ink-700">
-                  Password
-                </label>
+                <label className="block text-sm font-medium text-ink-700">Password</label>
                 <a href="#" className="text-xs font-medium text-brand-600 hover:text-brand-700">
                   Forgot password?
                 </a>
@@ -143,7 +140,8 @@ export default function LoginPage() {
                 <input
                   type={showPw ? "text" : "password"}
                   required
-                  defaultValue="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="h-11 w-full rounded-xl border border-ink-200 bg-white pl-10 pr-10 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                   placeholder="••••••••"
                 />
@@ -167,16 +165,25 @@ export default function LoginPage() {
               Keep me signed in
             </label>
 
-            <Button type="submit" size="lg" className="w-full">
-              Sign in
-              <ArrowRight className="h-4 w-4" />
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing in…
+                </>
+              ) : (
+                <>
+                  Sign in
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-ink-500">
-            Need help accessing your account?{" "}
-            <Link href="/dashboard" className="font-medium text-brand-600 hover:text-brand-700">
-              Contact the registrar
+            Trouble signing in?{" "}
+            <Link href="/" className="font-medium text-brand-600 hover:text-brand-700">
+              Back to home
             </Link>
           </p>
         </div>

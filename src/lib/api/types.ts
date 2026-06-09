@@ -1,0 +1,369 @@
+/*
+  TypeScript shapes for the K-12 School Management API.
+
+  Response envelopes follow Laravel API Resources. Field names mirror the
+  Postman collection payloads. Where the backend's exact shape is uncertain,
+  fields are made optional so the UI degrades gracefully.
+*/
+
+/* ----------------------------- envelopes ------------------------------- */
+
+export interface Paginated<T> {
+  data: T[];
+  meta?: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+  links?: { first?: string; last?: string; prev?: string; next?: string };
+}
+
+/** Some endpoints wrap a single resource as { data: T }, others return T raw. */
+export interface Wrapped<T> {
+  data: T;
+}
+
+export type ID = number | string;
+
+/* ------------------------------- roles --------------------------------- */
+
+export type Role =
+  | "superadmin"
+  | "admin"
+  | "principal"
+  | "registrar"
+  | "teacher"
+  | "student"
+  | "parent"
+  | "cashier"
+  | "guidance";
+
+/* ------------------------------- core ---------------------------------- */
+
+export interface User {
+  id: ID;
+  name: string;
+  email: string;
+  role: Role;
+  first_name?: string;
+  last_name?: string;
+  middle_name?: string;
+  contact_number?: string;
+  address?: string;
+  date_of_birth?: string;
+  gender?: "male" | "female" | string;
+  is_active?: boolean;
+  avatar_url?: string;
+  created_at?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user?: User;
+}
+
+export interface SchoolYear {
+  id: ID;
+  year_start: number;
+  year_end: number;
+  status: "active" | "inactive" | string;
+  label?: string;
+}
+
+export interface GradeLevel {
+  id: ID;
+  name: string;
+  education_level: "elementary" | "junior_high" | "senior_high" | string;
+}
+
+export interface Section {
+  id: ID;
+  name: string;
+  grade_level_id: ID;
+  grade_level?: GradeLevel;
+  teacher_id?: ID;
+  teacher?: User;
+  capacity: number;
+  students_count?: number;
+}
+
+export interface Subject {
+  id: ID;
+  name: string;
+  code: string;
+  grade_level_ids?: ID[];
+}
+
+export interface Track {
+  id: ID;
+  name: string;
+  description?: string;
+  code?: string;
+}
+
+export interface Student {
+  id: ID;
+  user_id?: ID;
+  lrn?: string;
+  first_name: string;
+  last_name: string;
+  middle_name?: string;
+  name?: string;
+  gender?: string;
+  date_of_birth?: string;
+  grade_level?: GradeLevel;
+  section?: Section;
+}
+
+export type EnrollmentStatus = "pending" | "approved" | "rejected" | string;
+
+export interface Enrollment {
+  id: ID;
+  student_id: ID;
+  student?: Student;
+  school_year_id: ID;
+  school_year?: SchoolYear;
+  grade_level_id: ID;
+  grade_level?: GradeLevel;
+  section_id?: ID;
+  section?: Section;
+  track_id?: ID;
+  track?: Track;
+  status: EnrollmentStatus;
+  created_at?: string;
+}
+
+export interface SchoolClass {
+  id: ID;
+  subject_id: ID;
+  subject?: Subject;
+  teacher_id: ID;
+  teacher?: User;
+  section_id: ID;
+  section?: Section;
+  school_year_id: ID;
+  room_id?: ID;
+  time_slot_id?: ID;
+  students_count?: number;
+}
+
+export type GradingPeriod =
+  | "1st_quarter"
+  | "2nd_quarter"
+  | "3rd_quarter"
+  | "4th_quarter"
+  | string;
+
+export interface Grade {
+  id?: ID;
+  enrollment_id: ID;
+  student?: Student;
+  subject?: Subject;
+  grading_period: GradingPeriod;
+  grade: number;
+  remarks?: string;
+}
+
+export type AttendanceStatus = "present" | "absent" | "late" | "excused" | string;
+
+export interface AttendanceEntry {
+  enrollment_id: ID;
+  student?: Student;
+  status: AttendanceStatus;
+  date?: string;
+}
+
+/* ----------------------------- financial ------------------------------- */
+
+export interface FeeStructure {
+  id: ID;
+  school_year_id: ID;
+  grade_level_id?: ID;
+  grade_level?: GradeLevel;
+  fee_type: string;
+  name: string;
+  amount: number;
+  description?: string;
+}
+
+export interface Discount {
+  id: ID;
+  name: string;
+  value_type: "percentage" | "fixed" | string;
+  value: number;
+  description?: string;
+}
+
+export interface StudentFee {
+  id: ID;
+  enrollment_id: ID;
+  fee_structure?: FeeStructure;
+  name?: string;
+  amount: number;
+  discount_amount?: number;
+  paid_amount?: number;
+  balance?: number;
+  status?: "unpaid" | "partial" | "paid" | string;
+}
+
+export interface Payment {
+  id: ID;
+  student_fee_id: ID;
+  amount: number;
+  payment_date: string;
+  payment_method: string;
+  reference_number?: string;
+}
+
+export interface Scholarship {
+  id: ID;
+  name: string;
+  description?: string;
+  type: "percentage" | "fixed" | string;
+  discount_percentage?: number;
+  is_active: boolean;
+  sponsored_by?: string;
+}
+
+export interface Invoice {
+  id: ID;
+  enrollment_id: ID;
+  invoice_number?: string;
+  total_amount?: number;
+  due_date?: string;
+  status: "unpaid" | "paid" | "overdue" | string;
+  notes?: string;
+}
+
+/* ------------------------------ comms ---------------------------------- */
+
+export interface Message {
+  id: ID;
+  sender_id: ID;
+  sender?: User;
+  receiver_id: ID;
+  receiver?: User;
+  subject: string;
+  body: string;
+  is_read?: boolean;
+  created_at?: string;
+}
+
+export interface Announcement {
+  id: ID;
+  title: string;
+  body: string;
+  audience: string;
+  is_published: boolean;
+  created_at?: string;
+}
+
+export interface Notification {
+  id: ID;
+  title?: string;
+  message?: string;
+  data?: Record<string, unknown>;
+  read_at?: string | null;
+  created_at?: string;
+}
+
+/* --------------------------- student services -------------------------- */
+
+export interface DisciplineRecord {
+  id: ID;
+  student_id: ID;
+  student?: Student;
+  incident_date: string;
+  incident_type: string;
+  severity: "minor" | "major" | string;
+  description: string;
+  status?: "open" | "resolved" | string;
+}
+
+export interface GuidanceRecord {
+  id: ID;
+  student_id: ID;
+  student?: Student;
+  session_date: string;
+  concern_type: string;
+  description: string;
+  action_taken?: string;
+  follow_up_date?: string;
+  status?: string;
+}
+
+export interface HealthRecord {
+  id?: ID;
+  student_id: ID;
+  blood_type?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  allergies?: string;
+  medical_conditions?: string;
+  emergency_contact_name?: string;
+  emergency_contact_number?: string;
+}
+
+export interface LearningRecoveryPlan {
+  id: ID;
+  student_id: ID;
+  student?: Student;
+  subject_id: ID;
+  subject?: Subject;
+  school_year_id: ID;
+  plan_description: string;
+  target_grade?: number;
+  status?: string;
+}
+
+export interface IEP {
+  id: ID;
+  student_id: ID;
+  student?: Student;
+  school_year_id: ID;
+  disability_type: string;
+  accommodations?: string;
+  goals?: string;
+  status?: string;
+  review_date?: string;
+}
+
+export interface Room {
+  id: ID;
+  name: string;
+  building?: string;
+  floor?: number;
+  capacity: number;
+  room_type?: string;
+}
+
+export interface CalendarEvent {
+  id: ID;
+  school_year_id: ID;
+  event_name: string;
+  event_type: string;
+  date: string;
+  description?: string;
+}
+
+export interface AuditLog {
+  id: ID;
+  user?: User;
+  action?: string;
+  model_type?: string;
+  model_id?: ID;
+  description?: string;
+  created_at?: string;
+}
+
+/* ---------------------------- dashboard -------------------------------- */
+
+export interface DashboardSummary {
+  total_students?: number;
+  total_teachers?: number;
+  total_sections?: number;
+  total_enrollments?: number;
+  pending_enrollments?: number;
+  [key: string]: unknown;
+}
