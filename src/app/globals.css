@@ -144,3 +144,68 @@ body {
     transform: translateX(100%);
   }
 }
+
+/* ---------------------------------------------------------------- */
+/* Print — official document output (TOR, DepEd SF9 / SF10)         */
+/* ---------------------------------------------------------------- */
+
+/* On-screen paper styling */
+.report-paper {
+  width: 210mm;
+  max-width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  color: #0f172a;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Hide everything not part of the document */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Collapse the app shell so the sheet prints edge-to-edge */
+  .print-reset {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .report-paper {
+    width: 100%;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Keep tables tidy across page breaks */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Force browsers to print background colors/borders of the form */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   FileText,
   Search,
@@ -88,20 +89,21 @@ export default function RegistrarPage() {
       {/* Document types quick grid */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          "Transcript of Records",
-          "Certificate of Enrollment",
-          "Diploma (Re-issuance)",
-          "Good Moral Certificate",
+          { label: "Transcript of Records", href: "/reports/transcript" },
+          { label: "Report Card · SF9 (Form 138)", href: "/reports/form-138" },
+          { label: "Permanent Record · SF10 (Form 137)", href: "/reports/form-137" },
+          { label: "Certificate of Enrollment", href: "/reports" },
         ].map((t) => (
-          <button
-            key={t}
+          <Link
+            key={t.label}
+            href={t.href}
             className="group flex items-center gap-3 rounded-2xl border border-ink-200/70 bg-white p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-pop"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
               <FileText className="h-5 w-5" />
             </div>
-            <span className="text-sm font-semibold text-ink-800">{t}</span>
-          </button>
+            <span className="text-sm font-semibold text-ink-800">{t.label}</span>
+          </Link>
         ))}
       </div>
 

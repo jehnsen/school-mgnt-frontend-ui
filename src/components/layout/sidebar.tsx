@@ -22,7 +22,7 @@ export function Sidebar({
       {/* Mobile backdrop */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-ink-900/40 backdrop-blur-sm transition-opacity lg:hidden",
+          "no-print fixed inset-0 z-40 bg-ink-900/40 backdrop-blur-sm transition-opacity lg:hidden",
           mobileOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={onClose}
@@ -30,7 +30,7 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-ink-200/70 bg-white transition-transform duration-300 lg:translate-x-0",
+          "no-print fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-ink-200/70 bg-white transition-transform duration-300 lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

@@ -5,7 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-200/70 bg-white/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="no-print sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-200/70 bg-white/80 px-4 backdrop-blur-md sm:px-6">
       <button
         onClick={onMenu}
         className="rounded-lg p-2 text-ink-500 hover:bg-ink-100 lg:hidden"

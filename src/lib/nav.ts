@@ -5,6 +5,7 @@ import {
   BookOpenCheck,
   CalendarRange,
   FileText,
+  Files,
   BarChart3,
   UserCircle,
   type LucideIcon,
@@ -43,6 +44,7 @@ export const navSections: NavSection[] = [
     title: "Records & Insights",
     items: [
       { label: "Registrar", href: "/registrar", icon: FileText },
+      { label: "Reports & Forms", href: "/reports", icon: Files },
       { label: "Data Analysis", href: "/analytics", icon: BarChart3 },
     ],
   },
