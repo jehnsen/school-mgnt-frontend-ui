@@ -35,7 +35,7 @@ export interface NavSection {
   items: NavItem[];
 }
 
-const ADMIN: Role[] = ["superadmin", "admin", "principal", "registrar"];
+const ADMIN: Role[] = ["super_admin", "admin", "principal", "registrar"];
 
 export const navSections: NavSection[] = [
   {
@@ -52,15 +52,15 @@ export const navSections: NavSection[] = [
       { label: "Enrollment", href: "/enrollment", icon: GraduationCap, roles: [...ADMIN], badge: "Open" },
       { label: "Classes & Grading", href: "/classes", icon: BookOpenCheck, roles: ["teacher", ...ADMIN] },
       { label: "Attendance", href: "/attendance", icon: CalendarCheck, roles: ["teacher", ...ADMIN] },
-      { label: "Academic Setup", href: "/academic-setup", icon: SlidersHorizontal, roles: ["superadmin", "admin", "principal"] },
+      { label: "Academic Setup", href: "/academic-setup", icon: SlidersHorizontal, roles: ["super_admin", "admin", "principal"] },
     ],
   },
   {
     title: "Finance",
     items: [
-      { label: "Fees & Payments", href: "/finance", icon: Wallet, roles: ["cashier", "admin", "superadmin"] },
-      { label: "Scholarships", href: "/scholarships", icon: Award, roles: ["cashier", "admin", "superadmin"] },
-      { label: "Invoices", href: "/invoices", icon: ReceiptText, roles: ["cashier", "admin", "superadmin"] },
+      { label: "Fees & Payments", href: "/finance", icon: Wallet, roles: ["cashier", "admin", "super_admin"] },
+      { label: "Scholarships", href: "/scholarships", icon: Award, roles: ["cashier", "admin", "super_admin"] },
+      { label: "Invoices", href: "/invoices", icon: ReceiptText, roles: ["cashier", "admin", "super_admin"] },
     ],
   },
   {
@@ -68,9 +68,9 @@ export const navSections: NavSection[] = [
     items: [
       { label: "Discipline", href: "/discipline", icon: ShieldAlert, roles: ["guidance", "teacher", ...ADMIN] },
       { label: "Guidance", href: "/guidance", icon: LifeBuoy, roles: ["guidance", ...ADMIN] },
-      { label: "Health Records", href: "/health", icon: HeartPulse, roles: ["guidance", "admin", "superadmin"] },
+      { label: "Health Records", href: "/health", icon: HeartPulse, roles: ["guidance", "admin", "super_admin"] },
       { label: "Learning Recovery", href: "/learning-recovery", icon: Sparkles, roles: ["teacher", "guidance", ...ADMIN] },
-      { label: "IEP / SPED", href: "/iep", icon: LifeBuoy, roles: ["guidance", "admin", "superadmin"] },
+      { label: "IEP / SPED", href: "/iep", icon: LifeBuoy, roles: ["guidance", "admin", "super_admin"] },
     ],
   },
   {
@@ -83,7 +83,7 @@ export const navSections: NavSection[] = [
   {
     title: "Records & Insights",
     items: [
-      { label: "Users", href: "/users", icon: Users, roles: ["superadmin", "admin"] },
+      { label: "Users", href: "/users", icon: Users, roles: ["super_admin", "admin"] },
       { label: "Reports & Forms", href: "/reports", icon: Files, roles: [...ADMIN] },
       { label: "Academic Calendar", href: "/calendar", icon: CalendarRange },
     ],

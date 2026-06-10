@@ -10,7 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 const ROLE_LABELS: Record<string, string> = {
-  superadmin: "Super Admin",
+  super_admin: "Super Admin",
   admin: "Administrator",
   principal: "Principal",
   registrar: "Registrar",

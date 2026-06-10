@@ -23,7 +23,7 @@ const typeTone: Record<string, "brand" | "warning" | "info" | "success" | "neutr
 
 export default function CalendarPage() {
   const { hasRole } = useAuth();
-  const canManage = hasRole("superadmin", "admin", "principal", "registrar");
+  const canManage = hasRole("super_admin", "admin", "principal", "registrar");
   const list = useQuery(() => calendarApi.list(), []);
   const create = useMutation(calendarApi.create);
   const remove = useMutation(calendarApi.remove);

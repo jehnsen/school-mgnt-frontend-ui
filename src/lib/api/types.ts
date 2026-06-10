@@ -28,8 +28,9 @@ export type ID = number | string;
 
 /* ------------------------------- roles --------------------------------- */
 
+// Roles as returned by the backend (snake_case).
 export type Role =
-  | "superadmin"
+  | "super_admin"
   | "admin"
   | "principal"
   | "registrar"
@@ -39,6 +40,19 @@ export type Role =
   | "cashier"
   | "guidance";
 
+export interface Profile {
+  id?: ID;
+  user_id?: ID;
+  first_name?: string;
+  last_name?: string;
+  middle_name?: string;
+  full_name?: string;
+  address?: string;
+  contact_number?: string;
+  dob?: string;
+  profile_picture_url?: string | null;
+}
+
 /* ------------------------------- core ---------------------------------- */
 
 export interface User {
@@ -46,6 +60,14 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  is_active?: boolean;
+  email_verified_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+  /** Personal details are nested under `profile`. */
+  profile?: Profile | null;
+  // Convenience fields some create/update payloads accept at top level.
   first_name?: string;
   last_name?: string;
   middle_name?: string;
@@ -53,14 +75,13 @@ export interface User {
   address?: string;
   date_of_birth?: string;
   gender?: "male" | "female" | string;
-  is_active?: boolean;
-  avatar_url?: string;
-  created_at?: string;
 }
 
+/** Inner `data` payload of POST /login (after envelope unwrap). */
 export interface LoginResponse {
+  user: User;
   token: string;
-  user?: User;
+  token_type?: string;
 }
 
 export interface SchoolYear {

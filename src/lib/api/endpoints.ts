@@ -39,13 +39,14 @@ import type {
   Subject,
   Track,
   User,
+  Wrapped,
 } from "./types";
 
 /* 01 — Authentication */
 export const authApi = {
   login: (email: string, password: string) =>
-    api.post<LoginResponse>("/login", { email, password }),
-  me: () => api.get<User>("/user"),
+    api.post<Wrapped<LoginResponse>>("/login", { email, password }),
+  me: () => api.get<Wrapped<User>>("/user"),
   logout: () => api.post<void>("/logout"),
 };
 
@@ -169,7 +170,8 @@ export const advisoryApi = {
 
 /* 10 — Dashboard Analytics */
 export const dashboardApi = {
-  summary: (params?: QueryParams) => api.get<DashboardSummary>("/dashboard/summary", params),
+  summary: (params?: QueryParams) =>
+    api.get<Wrapped<DashboardSummary>>("/dashboard/summary", params),
   enrollmentStatistics: (params?: QueryParams) =>
     api.get<Record<string, unknown>>("/dashboard/enrollment-statistics", params),
   enrollmentTrends: (params?: QueryParams) =>
@@ -243,7 +245,7 @@ export const feesApi = {
   paymentsForFee: (studentFeeId: ID) =>
     api.get<Paginated<Payment>>(`/fees/student-fee/${studentFeeId}/payments`),
   summary: (params?: QueryParams) =>
-    api.get<Record<string, unknown>>("/fees/summary", params),
+    api.get<Wrapped<Record<string, unknown>>>("/fees/summary", params),
 };
 
 export const scholarshipsApi = {
@@ -330,8 +332,8 @@ export const calendarApi = {
 
 /* 16 — Student Health Records */
 export const healthApi = {
-  mine: () => api.get<HealthRecord>("/students/me/health"),
-  forStudent: (studentId: ID) => api.get<HealthRecord>(`/health/student/${studentId}`),
+  mine: () => api.get<Wrapped<HealthRecord>>("/students/me/health"),
+  forStudent: (studentId: ID) => api.get<Wrapped<HealthRecord>>(`/health/student/${studentId}`),
   upsert: (studentId: ID, p: Partial<HealthRecord>) =>
     api.put<HealthRecord>(`/health/student/${studentId}`, p),
   incidents: (studentId: ID) =>
@@ -415,7 +417,7 @@ export const learningRecoveryApi = {
 export const iepApi = {
   list: () => api.get<Paginated<IEP>>("/iep"),
   create: (p: Partial<IEP>) => api.post<IEP>("/iep", p),
-  statistics: () => api.get<Record<string, unknown>>("/iep/statistics"),
+  statistics: () => api.get<Wrapped<Record<string, unknown>>>("/iep/statistics"),
   get: (id: ID) => api.get<IEP>(`/iep/${id}`),
   update: (id: ID, p: Partial<IEP>) => api.patch<IEP>(`/iep/${id}`, p),
   forStudent: (studentId: ID) => api.get<Paginated<IEP>>(`/iep/student/${studentId}`),

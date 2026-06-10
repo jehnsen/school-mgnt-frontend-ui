@@ -36,7 +36,7 @@ export default function StudentPortalPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Hi, ${user?.first_name ?? user?.name ?? "Learner"} 👋`}
+        title={`Hi, ${user?.profile?.first_name ?? user?.name ?? "Learner"} 👋`}
         description="Your grades, attendance, and academic progress at a glance."
       />
 

@@ -33,7 +33,7 @@ export default function IEPPage() {
   const [open, setOpen] = useState(false);
 
   const rows = (list.data?.data ?? []) as IEP[];
-  const s = (stats.data ?? {}) as Record<string, unknown>;
+  const s = (stats.data?.data ?? {}) as Record<string, unknown>;
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

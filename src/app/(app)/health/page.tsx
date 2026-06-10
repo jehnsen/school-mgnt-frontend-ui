@@ -23,7 +23,7 @@ export default function HealthPage() {
   );
   const upsert = useMutation((p: Partial<HealthRecord>) => healthApi.upsert(activeId as ID, p));
 
-  const r = (record.data ?? {}) as HealthRecord;
+  const r = (record.data?.data ?? {}) as HealthRecord;
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

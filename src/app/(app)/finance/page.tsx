@@ -25,7 +25,7 @@ export default function FinancePage() {
 
   const feeRows = (structures.data?.data ?? []) as FeeStructure[];
   const discountRows = (discounts.data?.data ?? []) as Discount[];
-  const s = (summary.data ?? {}) as Record<string, unknown>;
+  const s = (summary.data?.data ?? {}) as Record<string, unknown>;
 
   async function submitFee(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

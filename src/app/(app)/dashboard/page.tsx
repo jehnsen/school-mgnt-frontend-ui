@@ -40,14 +40,14 @@ export default function DashboardPage() {
   const pending = useQuery(() => enrollmentApi.list({ status: "pending", per_page: 6 }), []);
   const recentUsers = useQuery(() => usersApi.list({ per_page: 6 }), []);
 
-  const s = (summary.data ?? {}) as Record<string, unknown>;
+  const s = (summary.data?.data ?? {}) as Record<string, unknown>;
   const pendingRows: Enrollment[] = (pending.data?.data ?? []) as Enrollment[];
   const userRows: User[] = (recentUsers.data?.data ?? []) as User[];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Welcome back, ${user?.first_name ?? user?.name ?? "Admin"} 👋`}
+        title={`Welcome back, ${user?.profile?.first_name ?? user?.name ?? "Admin"} 👋`}
         description="A live snapshot of enrollment, academics, and activity across the institution."
       >
         <Link

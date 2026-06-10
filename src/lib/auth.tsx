@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(stored);
     authApi
       .me()
-      .then((u) => setUser(u))
+      .then((resp) => setUser(resp.data))
       .catch((err) => {
         // Invalid/expired token — clear it silently.
         if (err instanceof ApiError && err.status === 401) {
@@ -52,9 +52,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const res = await authApi.login(email, password);
-    setAuthToken(res.token);
-    setToken(res.token);
-    const u = res.user ?? (await authApi.me().catch(() => null));
+    const { token: newToken, user: u } = res.data;
+    setAuthToken(newToken);
+    setToken(newToken);
     setUser(u);
     return u;
   }, []);
@@ -71,8 +71,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
-    const u = await authApi.me().catch(() => null);
-    setUser(u);
+    const resp = await authApi.me().catch(() => null);
+    setUser(resp?.data ?? null);
   }, []);
 
   const hasRole = useCallback(

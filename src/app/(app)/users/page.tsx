@@ -15,10 +15,10 @@ import { usersApi } from "@/lib/api/endpoints";
 import type { Role, User } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-const ROLES: Role[] = ["superadmin", "admin", "principal", "registrar", "teacher", "student", "parent", "cashier", "guidance"];
+const ROLES: Role[] = ["super_admin", "admin", "principal", "registrar", "teacher", "student", "parent", "cashier", "guidance"];
 type Tone = "brand" | "accent" | "info" | "success" | "warning" | "neutral" | "danger";
 const roleTone: Record<string, Tone> = {
-  superadmin: "danger",
+  super_admin: "danger",
   admin: "brand",
   teacher: "accent",
   student: "info",
@@ -135,7 +135,7 @@ export default function UsersPage() {
                       <td className="px-5 py-3">
                         <Badge tone={roleTone[u.role] ?? "neutral"}>{u.role}</Badge>
                       </td>
-                      <td className="px-5 py-3 text-ink-600">{u.contact_number ?? "—"}</td>
+                      <td className="px-5 py-3 text-ink-600">{u.profile?.contact_number ?? u.contact_number ?? "—"}</td>
                       <td className="px-5 py-3">
                         <Badge tone={u.is_active === false ? "neutral" : "success"} dot>
                           {u.is_active === false ? "Inactive" : "Active"}
