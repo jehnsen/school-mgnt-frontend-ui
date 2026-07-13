@@ -16,6 +16,8 @@ import type {
   DisciplineRecord,
   Enrollment,
   FeeStructure,
+  Form137Response,
+  Form138Response,
   Grade,
   GradeLevel,
   GradingPeriod,
@@ -38,6 +40,7 @@ import type {
   StudentFee,
   Subject,
   Track,
+  TranscriptResponse,
   User,
   Wrapped,
 } from "./types";
@@ -140,8 +143,10 @@ export const attendanceApi = {
 
 /* 08 — DepEd Reports (return URLs/blobs/JSON depending on backend) */
 export const reportsApi = {
-  form137: (studentId: ID) => api.get<unknown>(`/reports/form-137/${studentId}`),
-  form138: (studentId: ID) => api.get<unknown>(`/reports/form-138/${studentId}`),
+  form137: (studentId: ID) => api.get<Wrapped<Form137Response>>(`/reports/form-137/${studentId}`),
+  form138: (studentId: ID) => api.get<Wrapped<Form138Response>>(`/reports/form-138/${studentId}`),
+  transcript: (studentId: ID) =>
+    api.get<Wrapped<TranscriptResponse>>(`/reports/transcript/${studentId}`),
   sf9: (studentId: ID) => api.get<unknown>(`/reports/sf9/${studentId}`),
   sf5: (sectionId: ID) => api.get<unknown>(`/reports/sf5/${sectionId}`),
   sf6: (sectionId: ID) => api.get<unknown>(`/reports/sf6/${sectionId}`),
@@ -150,7 +155,6 @@ export const reportsApi = {
     api.get<unknown>(`/reports/certificate-enrollment/${studentId}`),
   certificateGoodMoral: (studentId: ID) =>
     api.get<unknown>(`/reports/certificate-good-moral/${studentId}`),
-  transcript: (studentId: ID) => api.get<unknown>(`/reports/transcript/${studentId}`),
 };
 
 /* 09 — Advisory Dashboard (Teacher) */

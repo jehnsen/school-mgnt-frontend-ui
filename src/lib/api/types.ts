@@ -388,3 +388,90 @@ export interface DashboardSummary {
   pending_enrollments?: number;
   [key: string]: unknown;
 }
+
+/* ------------------------------- reports -------------------------------- */
+
+export interface ReportLearningArea {
+  area: string;
+  quarters: (number | null)[];
+  final?: number;
+  components?: { name: string; quarters: (number | null)[] }[];
+}
+
+export interface ReportCoreValue {
+  value: string;
+  statements: string[];
+  marks: string[];
+}
+
+export interface ReportAttendanceMonth {
+  month: string;
+  days: number;
+  present: number;
+  absent: number;
+}
+
+/** GET /reports/form-137/{studentId} — SF10 Permanent Academic Record. */
+export interface Form137Response {
+  learner: {
+    name: string;
+    lrn?: string;
+    date_of_birth?: string;
+    sex?: string;
+    place_of_birth?: string;
+    mother_tongue?: string;
+    parent_guardian?: string;
+  };
+  eligibility?: {
+    type?: string;
+    school?: string;
+    school_id?: string;
+    school_year?: string;
+    grade_completed?: string;
+  };
+  records: {
+    grade_level: string;
+    school_year: string;
+    section?: string;
+    adviser?: string;
+    areas: ReportLearningArea[];
+    action_taken?: string;
+  }[];
+}
+
+/** GET /reports/form-138/{studentId} — SF9 Learner's Progress Report Card. */
+export interface Form138Response {
+  learner: {
+    name: string;
+    lrn?: string;
+    grade?: string;
+    section?: string;
+    school_year?: string;
+    adviser?: string;
+    age?: number;
+    sex?: string;
+  };
+  learning_areas: ReportLearningArea[];
+  core_values: ReportCoreValue[];
+  attendance: ReportAttendanceMonth[];
+}
+
+/** GET /reports/transcript/{studentId} — collegiate Transcript of Records. */
+export interface TranscriptResponse {
+  student: {
+    name: string;
+    student_no?: string;
+    program?: string;
+    date_of_birth?: string;
+    place_of_birth?: string;
+    sex?: string;
+    date_admitted?: string;
+    date_graduated?: string;
+    entrance_credentials?: string;
+  };
+  terms: {
+    school_year: string;
+    semester: string;
+    subjects: { code: string; title: string; units: number; grade: string; credit: number }[];
+  }[];
+}
